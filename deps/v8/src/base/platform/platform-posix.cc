@@ -199,6 +199,12 @@ void* OS::GetRandomMmapAddr() {
     MutexGuard guard(rng_mutex.Pointer());
     GetPlatformRandomNumberGenerator()->NextBytes(&raw_addr, sizeof(raw_addr));
   }
+#if defined(__APPLE__)
+#if V8_TARGET_ARCH_ARM64
+  DCHECK_EQ(1 << 14, AllocatePageSize());
+  raw_addr = RoundDown(raw_addr, 1 << 14);
+#endif
+#endif
 #if defined(V8_USE_ADDRESS_SANITIZER) || defined(MEMORY_SANITIZER) || \
     defined(THREAD_SANITIZER) || defined(LEAK_SANITIZER)
   // If random hint addresses interfere with address ranges hard coded in
@@ -677,11 +683,6 @@ int OS::VSNPrintF(char* str,
 // ----------------------------------------------------------------------------
 // POSIX string support.
 //
-
-char* OS::StrChr(char* str, int c) {
-  return strchr(str, c);
-}
-
 
 void OS::StrNCpy(char* dest, int length, const char* src, size_t n) {
   strncpy(dest, src, n);

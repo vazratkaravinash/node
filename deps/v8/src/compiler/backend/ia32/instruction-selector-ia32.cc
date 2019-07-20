@@ -272,9 +272,9 @@ void InstructionSelector::VisitStackSlot(Node* node) {
        sequence()->AddImmediate(Constant(slot)), 0, nullptr);
 }
 
-void InstructionSelector::VisitDebugAbort(Node* node) {
+void InstructionSelector::VisitAbortCSAAssert(Node* node) {
   IA32OperandGenerator g(this);
-  Emit(kArchDebugAbort, g.NoOutput(), g.UseFixed(node->InputAt(0), edx));
+  Emit(kArchAbortCSAAssert, g.NoOutput(), g.UseFixed(node->InputAt(0), edx));
 }
 
 void InstructionSelector::VisitLoad(Node* node) {
@@ -310,7 +310,6 @@ void InstructionSelector::VisitLoad(Node* node) {
     case MachineRepresentation::kWord64:             // Fall through.
     case MachineRepresentation::kNone:
       UNREACHABLE();
-      return;
   }
 
   IA32OperandGenerator g(this);
@@ -1594,6 +1593,11 @@ void InstructionSelector::VisitFloat64SilenceNaN(Node* node) {
        g.UseRegister(node->InputAt(0)));
 }
 
+void InstructionSelector::VisitMemoryBarrier(Node* node) {
+  IA32OperandGenerator g(this);
+  Emit(kIA32MFence, g.NoOutput());
+}
+
 void InstructionSelector::VisitWord32AtomicLoad(Node* node) {
   LoadRepresentation load_rep = LoadRepresentationOf(node->op());
   DCHECK(load_rep.representation() == MachineRepresentation::kWord8 ||
@@ -1619,7 +1623,6 @@ void InstructionSelector::VisitWord32AtomicStore(Node* node) {
       break;
     default:
       UNREACHABLE();
-      break;
   }
   VisitAtomicExchange(this, node, opcode, rep);
 }

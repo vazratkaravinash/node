@@ -30,8 +30,7 @@ Reduction JSHeapCopyReducer::Reduce(Node* node) {
       ObjectRef object(broker(), HeapConstantOf(node->op()));
       if (object.IsJSFunction()) object.AsJSFunction().Serialize();
       if (object.IsJSObject()) object.AsJSObject().SerializeObjectCreateMap();
-      if (object.IsModule()) object.AsModule().Serialize();
-      if (object.IsContext()) object.AsContext().SerializeContextChain();
+      if (object.IsSourceTextModule()) object.AsSourceTextModule().Serialize();
       break;
     }
     case IrOpcode::kJSCreateArray: {
@@ -64,7 +63,7 @@ Reduction JSHeapCopyReducer::Reduce(Node* node) {
     case IrOpcode::kJSCreateClosure: {
       CreateClosureParameters const& p = CreateClosureParametersOf(node->op());
       SharedFunctionInfoRef(broker(), p.shared_info());
-      HeapObjectRef(broker(), p.feedback_cell());
+      FeedbackCellRef(broker(), p.feedback_cell());
       HeapObjectRef(broker(), p.code());
       break;
     }
